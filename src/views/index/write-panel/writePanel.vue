@@ -1,78 +1,60 @@
 <template>
 	<div class="write-app">
 		<div class="article-submit"><a @click="handleSubmit">发表</a></div>
-		<div class="edit-tool">
-			<div style="display: inline-block" @click="handleUpload">
-				<span><Icon class="el-icon-camera"></Icon></span>
-				<input ref="fileInput" type="file" style="display: none" @change="handleUploadChange">
+		<div class="tab-text" key="tab_title">
+			<div @click="handleTab(2)" v-if="tabType === 1"><van-icon name="send-gift" /> 图文模式</div>
+			<div @click="handleTab(1)" v-else-if="tabType === 2"><van-icon name="card" /> 富文本模式</div>
+		</div>
+		<div key="tab-content">
+			<div v-if="tabType === 2">
+				<div class="edit-tool">
+					<div style="display: inline-block">
+						<QiniuUpload @onchange="uploadChange">
+							<span style="color: #c8c9cc"><Icon class="el-icon-camera"></Icon></span>
+						</QiniuUpload>
+					</div>
+				</div>
+				<Panel ref="panel"></Panel>
+			</div>
+			<div v-else>
+				<Picontent ref="picGroup"></Picontent>
 			</div>
 		</div>
-		<Panel ref="panel"></Panel>
 	</div>
 </template>
 
 <script>
-import Panel from './compoent/panel'
+import Panel from './component/panel'
 import {Icon, Upload} from 'element-ui'
 import API from '@/api'
-import axios from 'axios'
 import {setItem} from '@/utils/storage'
+import QiniuUpload from '@/components/upload/qiniuUpload-v1'
+import Picontent from './component/picontent'
+
 export default {
   name: "write-panel",
   data () {
-    return {}
+    return {
+      tabType: 1
+	}
   },
   components: {
     Panel,
-	Icon
+	Icon,
+    QiniuUpload,
+    Picontent
   },
   created () {
-    API.checkLogin().then(json => {
-      const data = json.data
-	  if (data.code === 0) {
-        setItem({
-		  username: data.data.username
-		})
-	  }
-	  else {
-        this.$router.push('/login')
-	  }
-	})
   },
   methods: {
-    handleSubmit () {
-      const content = this.$refs.panel.$refs.notePanel.innerHTML
-	  if (!content) {
-        return
-	  }
-	  // 从内容中截取标题
-	  const regResult = content.indexOf('<br>') > -1 ? content.match('<br>') : content
-	  const title = typeof regResult === 'string' ? '' : content.slice(0, regResult.index)
-      API.save({
-		title,
-		content
-	  }).then(json => {
-	    this.$router.push('/')
-	  })
+    // 编辑模式切换
+    handleTab (type) {
+      this.tabType = type
 	},
-	// 上传
-    handleUpload () {
-      this.$refs.fileInput.click()
-	},
-    handleUploadChange (e) {
-      console.log(e)
-	  const files = e.target.files
-	  const type = files[0].type
-	  const data = new FormData()
-	  data.append('file', files[0])
-      data.append('token', '9h5kHWHnr20ObcQ45Efmw7Y2J8Dn_0lvl6ch0cTZ:V8M-iZIxEqh-DyJaACrUA_5WhD4=:eyJzY29wZSI6ImNvbyIsImRlYWRsaW5lIjoxNTg2NjU5NTUxfQ==')
-      axios({
-        method: 'post',
-        url: 'http://upload-z2.qiniup.com',
-        data: data
-      }).then(result => {
-        if (type.indexOf('image') > -1) {
-          const imgSrc = `http://image.shenxiaoyu.cn/${result.data.key}`
+    uploadChange (urlList) {
+      urlList.forEach(file => {
+        if (file.type.indexOf('image') > -1) {
+          const imgSrc = file.url
           let imgs = new Image()
           imgs.src = imgSrc
           imgs.style.display = 'inline-block'
@@ -82,17 +64,35 @@ export default {
           this.$refs.panel.$refs.notePanel.appendChild(imgs)
           imgs = null
 		}
-		else if (type.indexOf('video') > -1) {
-
-		}
-      })
+	  })
 	},
+    handleSubmit () {
+      let title, content,
+		type = this.tabType
+      if (this.tabType === 1) {
+        // 照片编辑模式
+		title = this.$refs.picGroup.value
+		content = this.$refs.picGroup.fileList
+	  }
+	  else {
+        // 富文本编辑模式
+        content = this.$refs.panel.$refs.notePanel.innerHTML
+        if (!content) {
+          return
+        }
+        // 从内容中截取标题
+        const regResult = content.indexOf('<br>') > -1 ? content.match('<br>') : content
+        title = typeof regResult === 'string' ? '' : content.slice(0, regResult.index)
+	  }
 
-	// 插入图片或视频的处理
-	appendFile () {
-
+      API.save({
+        title,
+        content,
+		type
+      }).then(() => {
+        this.$router.push('/')
+      })
 	}
-
   }
 }
 </script>
@@ -112,6 +112,18 @@ export default {
 				padding: 0 10Px;
 				border-radius: 3px;
 				color: #323233;
+			}
+		}
+		.tab-text {
+			div {
+				display: inline-block;
+				font-size: 14Px;
+				box-sizing: border-box;
+				margin: 30px;
+				padding: 10px;
+				color: #c8c9cc;
+				/*border-radius: 10px;*/
+				border-bottom: 1px solid #969799;
 			}
 		}
 		.edit-tool {

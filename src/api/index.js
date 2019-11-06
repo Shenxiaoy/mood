@@ -5,4 +5,6 @@ export default {
   list: r.get('list', baseUrl),
   login: r.post('login', baseUrl),
   checkLogin: r.get('selfCheck', baseUrl),
+  delArticle: r.post('delete', baseUrl),
+  authority: r.get('authority', baseUrl),
 }
