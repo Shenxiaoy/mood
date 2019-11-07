@@ -16,7 +16,7 @@
 
 <script>
 import axios from 'axios'
-
+import {dataURLtoFile} from '@/utils/func'
 export default {
   name: "upload-v1",
   data () {
@@ -53,12 +53,28 @@ export default {
   },
   methods: {
     // 单个文件请求上传
-    singleUpload (blob) {
+    async singleUpload (blob) {
       const fileInfo = {
         name: blob.name,
 		type: blob.type,
         size: (blob.size/1024/1024).toFixed(3)
 	  }
+
+	  // 获取视频预览图src url
+	  if (fileInfo.type.indexOf('video') > -1) {
+        const imgBlob = await this.getVideoPhoto(blob)
+		console.log(imgBlob, 'sssss')
+        const data = new FormData()
+        data.append('file', imgBlob)
+        data.append('token', this.token)
+		const json = await axios({
+          method: 'post',
+          url: this.action,
+          data: data
+        })
+		fileInfo.imgUrl = `${this.origin}/${json.data.key}`
+	  }
+
       const data = new FormData()
       data.append('file', blob)
       data.append('token', this.token)
@@ -72,6 +88,35 @@ export default {
 		})
         return obj
       })
+    },
+    // 获取视频第一帧图片
+    getVideoPhoto (blob) {
+      const url = window.URL.createObjectURL(blob)
+      const video = document.createElement('video')
+      video.width = 500
+      video.height = 500
+      video.src = url
+      video.currentTime = 1
+      const canvas = document.createElement('canvas')
+      canvas.width = 500
+      canvas.height = 500
+	  return new Promise((res, rej) => {
+        video.oncanplay = () => {
+          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+          const img = canvas.toDataURL('image/jpeg')
+          const imgBlob = dataURLtoFile(img, 'image/jpeg')
+          try {
+            res(imgBlob)
+		  }
+		  catch (error) {
+            rej(error)
+		  }
+        }
+	  })
+
+
+      // console.log(smallImgBlob, 'outoutout')
+      // return smallImgBlob
     },
     async handleUploadChange (e) {
       const files = Array.from(e.target.files)
@@ -90,6 +135,7 @@ export default {
 	  })
 	  const result = await axios.all(axiosList)
 	  this.loading = false
+
       this.$emit('loadingChange', false)
 	  this.$emit('onchange', result)
 	},

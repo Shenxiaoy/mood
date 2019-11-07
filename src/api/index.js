@@ -1,5 +1,7 @@
 import r from '../utils/request'
-const baseUrl = 'http://localhost:9101/article'
+const origin = process.env.NODE_ENV === 'development' ? 'http://localhost' : 'http://139.199.98.207'
+const baseUrl = `${origin}:9101/article`
+
 export default {
   save: r.post('save', baseUrl),
   list: r.get('list', baseUrl),

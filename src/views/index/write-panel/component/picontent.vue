@@ -21,7 +21,7 @@
 		<div class="content-show">
 			<div class="pic-item" v-for="item in fileList">
 				<img v-if="item.type.indexOf('image') > -1" :src="item.url" alt="">
-				<video v-else-if="item.type.indexOf('video') > -1" :src="item.url">不支持视频</video>
+				<img v-else-if="item.type.indexOf('video') > -1" :src="item.imgUrl">
 				<span v-else>{{item.name}}</span>
 			</div>
 		</div>
@@ -58,8 +58,24 @@ export default {
   methods: {
     uploadChange (urlList) {
       console.log(urlList, 'pic')
-      this.fileList = urlList
+      this.fileList = this.fileList.concat([], urlList)
 	},
+	// // 获取视频第一帧图片
+	// getVideoPhoto (url) {
+     //  const video = document.createElement('video')
+	//   video.width = 400
+	//   video.height = 300
+	//   video.src = url
+	//   video.currentTime = 1
+	//   const canvas = document.createElement('canvas')
+	//   canvas.width = 400
+	//   canvas.height = 300
+	//   video.oncanplay = () => {
+     //    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+	// 	const img = canvas.toDataURL('image/jpeg')
+	// 	console.log(444)
+	//   }
+	// },
 	// 上传前后的loading 状态
     loadingChange (boolean) {
       if (boolean) {
