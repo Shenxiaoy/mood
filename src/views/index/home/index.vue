@@ -1,13 +1,16 @@
 <template>
 	<div class="home">
-		<div class="fixed-write" @click="handlePanel">
+		<div v-if="isAuth" class="fixed-write" @click="handlePanel">
 			<Icon class="el-icon-circle-plus-outline"></Icon>
 		</div>
 		<div class="wraper" v-for="item in articleList">
 			<TabOne v-if="item.type === 1" :result="item"></TabOne>
 			<item v-else :result="item"></item>
 			<div class="article-option">
-				<div>{{dateFormat(item.date)}}</div>
+				<div>
+					<span>{{dateFormat(item.date)}}</span>
+					<span> {{item.username}}</span>
+				</div>
 				<div>
 					<a v-if="isAuth" @click="handleDel(item)">删除</a>
 				</div>
@@ -23,6 +26,7 @@ import Item from './component/item'
 import TabOne from './component/tabOne'
 import {Icon} from 'element-ui'
 import {getItem} from '@/utils/storage'
+import {del} from '@/utils/cookie'
 import {format} from 'date-fns'
 import API from '@/api'
 
@@ -59,7 +63,12 @@ export default {
         const data = json.data.data
         this.articleList = data.list
       })
-    }
+    },
+	// 退出登录
+    delToken () {
+      del('token')
+	  location.reload()
+	}
   },
   created () {
     this.refreshList()
@@ -95,7 +104,8 @@ export default {
 		right: 3vw;
 		top: 2vw;
 		font-size: 20Px;
-		color: wheat;
+		color: white;
+		/*font-weight: bold;*/
 		padding: 1px;
 		height: 20Px;
 	}
