@@ -5,10 +5,10 @@
 		<div class="content-show">
 			<div class="pic-item" v-for="item in result.fileList">
 				<a v-if="isPic(item.type) === 'image'" @click="bigPhoto(item)">
-					<img :src="item.url" alt="">
+					<img :src="cuttingImg(item.url)" alt="">
 				</a>
 				<a class="item-video" v-else-if="isPic(item.type) === 'video'" @click="bigPhoto(item)">
-					<img :src="item.imgUrl || ''" alt="">
+					<img :src="cuttingImg(item.imgUrl) || ''" alt="">
 					<span class="video-play"><van-icon name="play-circle-o" /></span>
 				</a>
 
@@ -17,10 +17,12 @@
 		<div class="photo-fixed" :style="{display: display}">
 			<div class="back-but" @click.stop="cancel"><van-icon name="arrow-left" /></div>
 			<div class="content" v-if="isPic(fileType) === 'image'">
-				<img @click="cancel" :src="url" alt="">
+				<div>
+					<img @click="cancel" :src="ruleDirection(url)" alt="加载中">
+				</div>
 			</div>
 			<div v-else-if="isPic(fileType) === 'video'" class="video-show content">
-				<video autoplay @click.stop="cancel" :src="url">不支持视频播放</video>
+				<video x5-video-player-type="h5" autoplay @click.stop="cancel" :src="url">不支持视频播放</video>
 			</div>
 
 		</div>
@@ -62,7 +64,21 @@ export default {
 	  else if (type.indexOf('video') > -1) {
         return 'video'
 	  }
+	},
+    // 获取裁切小图片
+    cuttingImg (url, size) {
+      if (!url) {return ''}
+      if (size) {
+        return `${url}?imageView2/2/w/${size}/h/300/q/75|imageslim`
+	  }
+      return `${url}?imageView2/2/w/300/h/300/q/75|imageslim`
+    },
+
+	// 数码图片方向自动校正
+	ruleDirection (url) {
+      return `${url}?imageMogr2/auto-orient`
 	}
+
   }
 }
 </script>
@@ -127,7 +143,6 @@ export default {
 			padding: 15Px;
 			color: white;
 			font-size: 20Px;
-
 		}
 
 		.content {
@@ -136,12 +151,10 @@ export default {
 			display: flex;
 			align-items: center;
 			img {
-				/*display: inline-block;*/
+				display: inline-block;
 				width: 100%;
-				/*height: 100%;*/
-			}
-			video {
-				width: 100vw;
+				/*max-height: 100vh;*/
+
 			}
 		}
 
