@@ -22,7 +22,15 @@
 				</div>
 			</div>
 			<div v-else-if="isPic(fileType) === 'video'" class="video-show content">
-				<video x5-video-player-type="h5" autoplay @click.stop="cancel" :src="url">不支持视频播放</video>
+				<video
+						x5-video-player-type="h5"
+						autoplay
+						@click.stop="cancel"
+						playsinline
+						webkit-playsinline
+						:x5-video­player­fullscreen="false"
+						:src="url">
+					不支持视频播放</video>
 			</div>
 
 		</div>
@@ -154,7 +162,11 @@ export default {
 				display: inline-block;
 				width: 100%;
 				/*max-height: 100vh;*/
-
+			}
+			video {
+				width: 100vw;
+				display: inline-block;
+				/*max-height: 100vh;*/
 			}
 		}
 
