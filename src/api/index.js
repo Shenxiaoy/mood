@@ -6,6 +6,7 @@ export default {
   save: r.post('save', baseUrl),
   list: r.get('list', baseUrl),
   login: r.post('login', baseUrl),
+  signUp: r.post('signUp', baseUrl),
   checkLogin: r.get('selfCheck', baseUrl),
   delArticle: r.post('delete', baseUrl),
   authority: r.get('authority', baseUrl),

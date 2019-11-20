@@ -4,6 +4,7 @@
 			<Icon class="el-icon-circle-plus-outline"></Icon>
 		</div>
 		<div class="wraper" v-for="item in articleList">
+			<p style="height: 5vw"></p>
 			<TabOne v-if="item.type === 1" :result="item"></TabOne>
 			<item v-else :result="item"></item>
 			<div class="article-option">
@@ -44,7 +45,7 @@ export default {
   },
   methods: {
     dateFormat (time) {
-      return time ? format(new Date(time), 'yyyy-MM-dd HH:mm:ss') : ''
+      return time ? format(new Date(time), 'yyyy-MM-dd HH:mm') : ''
 	},
     handlePanel () {
       this.$router.push('/write')
@@ -114,8 +115,8 @@ export default {
 		font-size: 14Px;
 		width: 100%;
 		position: relative;
-		top: 25Px;
-		margin: 5vw auto;
+		top: 10vw;
+		margin: 1vw auto;
 		background-color: rgba(250, 250, 250, .5);
 		padding: 2vw;
 		overflow: hidden;
@@ -126,7 +127,7 @@ export default {
 			justify-content: space-between;
 			margin-top: 15px;
 			font-size: 10Px;
-			color: #323233;
+			color: #7d7e80;
 			padding: 2px;
 		}
 	}
